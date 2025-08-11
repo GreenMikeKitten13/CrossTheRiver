@@ -3,21 +3,22 @@ extends RigidBody3D
 @onready var gravity:float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 const testInStick = preload("res://scenes/testInStick.tscn")
-var waterLevel:float = 1.0
-var waterDensity:float = 1.0
+var waterLevel:float = 2.0
+var waterDensity:float = 48
 var timer:float = 0.0
 var points:Array[Vector3] = []
 
 func _physics_process(delta: float) -> void:
 	timer += delta
-	if timer >= 0.1:
+	if timer >= 0.01:
+		timer = 0
 		#self.linear_velocity.y = 0.25
 		points = []
 		for child:Node3D in self.get_children():
 			if child is MeshInstance3D and child.mesh is CylinderMesh:
 				#if child.name.begins_with("bup"):
 				#	child.queue_free()
-				var childPos = self.to_local(child.global_transform.origin)
+				var childPos = child.global_transform.origin#)self.to_local(
 				var rotation_euler: Vector3 = child.rotation
 				var quat = Quaternion()
 				quat = Quaternion.from_euler(rotation_euler)
@@ -34,13 +35,14 @@ func _physics_process(delta: float) -> void:
 					if point.y <= waterLevel:
 						submergedPoints.append(point)
 				
+				print(submergedPoints.size())
 				var submergedVolume = submerged_volume(submergedPoints.size(), points.size(), child.mesh.top_radius, child.mesh.height)
 				var middlePoint:Vector3 = Vector3.ZERO
 				for submergedPoint:Vector3 in submergedPoints:
 					middlePoint += submergedPoint
 				middlePoint /= submergedPoints.size()
 				var force = (waterDensity * gravity * submergedVolume)
-				self.apply_impulse(Vector3(0,force, 0), middlePoint)
+				self.apply_force(Vector3(0,force, 0), middlePoint)
 
 func get_random_point_in_cylinder(radius: float, height: float) -> Vector3:
 	var angle = randf() * TAU
