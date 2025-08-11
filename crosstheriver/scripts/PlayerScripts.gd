@@ -71,17 +71,19 @@ func _ready() -> void:
 				stickBody.add_child(stickCollider)
 				stickBody.add_child(stickMesh)
 				# Create child transform from rotation (Euler angles) and position
-				#var rotation_euler: Vector3 = childData[1]  # make sure it's in radians!
-				#var quat = Quaternion()
-				#quat.from_euler(rotation_euler)
-				#var sasis = quat.get_basis()
-				#var child_transform = Transform3D(sasis, childData[0])
+				var rotation_euler: Vector3 = childData[1]  # ensure radians
+				#rotation_euler = Vector3(deg_to_rad(rotation_euler.x), deg_to_rad(rotation_euler.y), deg_to_rad(rotation_euler.z))
+				var quat = Quaternion()
+				quat = Quaternion.from_euler(rotation_euler)
+				#Quaternion.from_euler(rotation_euler)
+				var sasis = Basis(quat)
+				var child_transform = Transform3D(sasis, childData[0])
 
-				#for i in range(1000):
-				#	var local_point = get_random_point_in_cylinder(childData[2], childData[3])
-				#	var global_point = child_transform.xform(local_point)
-				#	points.append(global_point)
-					
+				for i in range(1000):
+					var local_point = get_random_point_in_cylinder(childData[2], childData[3])
+					var global_point = child_transform * local_point  # use * instead of xform
+					points.append(global_point)
+
 
 			var container:GridContainer = %inventory.get_child(0)
 			var newStickPicture:SubViewportContainer = stickPicture.instantiate()
