@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://dineav5sixs36"]
+
+[ext_resource type="Script" uid="uid://1hc7kgol8742" path="res://scripts/rotate.gd" id="1_cf3ns"]
+
+[sub_resource type="Theme" id="Theme_gg8by"]
+
+[node name="FinalPicture" type="SubViewportContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = SubResource("Theme_gg8by")
+stretch = true
+
+[node name="PictureDrawer" type="SubViewport" parent="."]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 4
+
+[node name="StickName" type="RichTextLabel" parent="PictureDrawer"]
+custom_minimum_size = Vector2(35, 35)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Stick1"
+fit_content = true
+horizontal_alignment = 1
+
+[node name="CameraPivot" type="Node3D" parent="PictureDrawer"]
+script = ExtResource("1_cf3ns")
+
+[node name="Camera3D" type="Camera3D" parent="PictureDrawer/CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.5, 3)
+far = 10.0

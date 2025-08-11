@@ -1,0 +1,111 @@
+[gd_scene load_steps=15 format=3 uid="uid://cn71iwyigu0lm"]
+
+[ext_resource type="Script" uid="uid://vc3hybhtcrsy" path="res://scripts/stickSpawner.gd" id="1_nq2lc"]
+[ext_resource type="PackedScene" uid="uid://eckmu06s5ksr" path="res://scenes/inventory.tscn" id="3_nq2lc"]
+[ext_resource type="Script" uid="uid://cdf4u0rr5nbn3" path="res://scripts/PlayerScripts.gd" id="3_wuk6e"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_pgclj"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_v2rmg"]
+sky_material = SubResource("ProceduralSkyMaterial_pgclj")
+
+[sub_resource type="Environment" id="Environment_u2k36"]
+background_mode = 2
+sky = SubResource("Sky_v2rmg")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_u2k36"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_5sy15"]
+noise = SubResource("FastNoiseLite_u2k36")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k8dfb"]
+albedo_color = Color(0.479114, 9.8668e-07, 1.68458e-07, 1)
+metallic_specular = 0.2
+roughness_texture = SubResource("NoiseTexture2D_5sy15")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_5x088"]
+material = SubResource("StandardMaterial3D_k8dfb")
+size = Vector2(20, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cmg6b"]
+size = Vector3(20, 0.05, 20)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pgclj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nq2lc"]
+albedo_color = Color(1, 1, 1, 0)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_v2rmg"]
+material = SubResource("StandardMaterial3D_nq2lc")
+
+[node name="RaceScene" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_u2k36")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 3.94234, 0)
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("PlaneMesh_5x088")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_cmg6b")
+
+[node name="StickSpawner" type="Node3D" parent="."]
+script = ExtResource("1_nq2lc")
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15146, 3.77111)
+script = ExtResource("3_wuk6e")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("CapsuleShape3D_pgclj")
+
+[node name="playerMesh" type="MeshInstance3D" parent="CharacterBody3D"]
+unique_name_in_owner = true
+mesh = SubResource("CapsuleMesh_v2rmg")
+
+[node name="CameraPivot" type="Node3D" parent="CharacterBody3D"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CharacterBody3D/CameraPivot"]
+unique_name_in_owner = true
+
+[node name="Camera3D" type="Camera3D" parent="CharacterBody3D/CameraPivot/SpringArm3D"]
+unique_name_in_owner = true
+current = true
+
+[node name="RayCast3D" type="RayCast3D" parent="CharacterBody3D/CameraPivot"]
+unique_name_in_owner = true
+transform = Transform3D(-1, -8.74228e-08, 3.82137e-15, 0, -4.37114e-08, -1, 8.74228e-08, -1, 4.37114e-08, 0, 0, 0)
+target_position = Vector3(0, 3, 0)
+
+[node name="EToPickUp" type="RichTextLabel" parent="CharacterBody3D"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(0, 1, 1, 1)
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/normal_font_size = 33
+text = "E to pick up"
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="inventory" parent="CharacterBody3D" instance=ExtResource("3_nq2lc")]
+unique_name_in_owner = true
