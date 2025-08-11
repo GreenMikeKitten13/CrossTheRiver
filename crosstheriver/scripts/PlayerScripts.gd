@@ -71,18 +71,18 @@ func _ready() -> void:
 				stickBody.add_child(stickCollider)
 				stickBody.add_child(stickMesh)
 				# Create child transform from rotation (Euler angles) and position
-				var rotation_euler: Vector3 = childData[1]  # ensure radians
+				#var rotation_euler: Vector3 = childData[1]  # ensure radians
 				#rotation_euler = Vector3(deg_to_rad(rotation_euler.x), deg_to_rad(rotation_euler.y), deg_to_rad(rotation_euler.z))
-				var quat = Quaternion()
-				quat = Quaternion.from_euler(rotation_euler)
+				#var quat = Quaternion()
+				#quat = Quaternion.from_euler(rotation_euler)
 				#Quaternion.from_euler(rotation_euler)
-				var sasis = Basis(quat)
-				var child_transform = Transform3D(sasis, childData[0])
+				#var sasis = Basis(quat)
+				#var child_transform = Transform3D(sasis, childData[0])
 
-				for i in range(1000):
-					var local_point = get_random_point_in_cylinder(childData[2], childData[3])
-					var global_point = child_transform * local_point  # use * instead of xform
-					points.append(global_point)
+				#for i in range(1000):
+				#	var local_point = get_random_point_in_cylinder(childData[2], childData[3])
+				#	var global_point = child_transform * local_point  # use * instead of xform
+				#	points.append(global_point)
 
 
 			var container:GridContainer = %inventory.get_child(0)
@@ -92,13 +92,13 @@ func _ready() -> void:
 
 			subViewPort.add_child(stickBody)
 			stickBody.position = Vector3.UP
-			for point:Vector3 in points:
-				var test:MeshInstance3D = MeshInstance3D.new()
-				var testMesh:BoxMesh =  BoxMesh.new()
-				testMesh.size = Vector3(0.01, 0.01, 0.01 )
-				test.mesh =testMesh
-				test.position = point
-				stickBody.add_child(test)
+			#for point:Vector3 in points:
+			#	var test:MeshInstance3D = MeshInstance3D.new()
+			#	var testMesh:BoxMesh =  BoxMesh.new()
+			#	testMesh.size = Vector3(0.01, 0.01, 0.01 )
+			#	test.mesh =testMesh
+			#	test.position = point
+			#	stickBody.add_child(test)
 			stickBody.set_meta("points", points)
 
 			container.add_child(newStickPicture)
