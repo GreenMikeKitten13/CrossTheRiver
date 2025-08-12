@@ -175,7 +175,7 @@ func _physics_process(delta: float) -> void:
 func addToInventory(stickBody: RigidBody3D):
 	var stickSpeed: float = randf_range(0.5, 3)
 	var stickControl: float = randf_range(0.15, 2)
-	var stickHollow: float = randf_range(0.05, 5)
+	var stickHollow: float = randf_range(300, 900)
 	var stickColor:Color = Color(0,0,0)
 	
 	inventory[stickBody.name] = {#.assign({stickBody.name : {

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cn71iwyigu0lm"]
+[gd_scene load_steps=16 format=3 uid="uid://cn71iwyigu0lm"]
 
 [ext_resource type="Script" uid="uid://vc3hybhtcrsy" path="res://scripts/stickSpawner.gd" id="1_nq2lc"]
 [ext_resource type="PackedScene" uid="uid://eckmu06s5ksr" path="res://scenes/inventory.tscn" id="3_nq2lc"]
@@ -42,6 +42,9 @@ albedo_color = Color(1, 1, 1, 0)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_v2rmg"]
 material = SubResource("StandardMaterial3D_nq2lc")
+
+[sub_resource type="BoxMesh" id="BoxMesh_nq2lc"]
+size = Vector3(1, 0.05, 1)
 
 [node name="RaceScene" type="Node3D"]
 
@@ -109,3 +112,7 @@ vertical_alignment = 1
 
 [node name="inventory" parent="CharacterBody3D" instance=ExtResource("3_nq2lc")]
 unique_name_in_owner = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+mesh = SubResource("BoxMesh_nq2lc")
