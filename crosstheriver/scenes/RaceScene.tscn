@@ -1,8 +1,10 @@
 [gd_scene load_steps=16 format=3 uid="uid://cn71iwyigu0lm"]
 
 [ext_resource type="Script" uid="uid://vc3hybhtcrsy" path="res://scripts/stickSpawner.gd" id="1_nq2lc"]
+[ext_resource type="Script" uid="uid://b2cwxofo5r8vu" path="res://scripts/create.gd" id="3_f4p77"]
 [ext_resource type="PackedScene" uid="uid://eckmu06s5ksr" path="res://scenes/inventory.tscn" id="3_nq2lc"]
-[ext_resource type="Script" uid="uid://cdf4u0rr5nbn3" path="res://scripts/PlayerScripts.gd" id="3_wuk6e"]
+[ext_resource type="Material" uid="uid://b7y54kka6q85o" path="res://shaders/waterShader.tres" id="4_f4p77"]
+[ext_resource type="Texture2D" uid="uid://bd410rns6vfwd" path="res://cuboy - grass pack vol 1/grass_1.png" id="5_wuk6e"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_pgclj"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -17,34 +19,33 @@ sky = SubResource("Sky_v2rmg")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_u2k36"]
-noise_type = 3
+[sub_resource type="PlaneMesh" id="PlaneMesh_wuk6e"]
+material = ExtResource("4_f4p77")
+size = Vector2(5, 5)
 
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_5sy15"]
-noise = SubResource("FastNoiseLite_u2k36")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_377mr"]
+albedo_texture = ExtResource("5_wuk6e")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k8dfb"]
-albedo_color = Color(0.479114, 9.8668e-07, 1.68458e-07, 1)
-metallic_specular = 0.2
-roughness_texture = SubResource("NoiseTexture2D_5sy15")
+[sub_resource type="BoxMesh" id="BoxMesh_4r6h2"]
+size = Vector3(50, 1, 100)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_5x088"]
-material = SubResource("StandardMaterial3D_k8dfb")
-size = Vector2(20, 20)
+[sub_resource type="MultiMesh" id="MultiMesh_b3o7c"]
+transform_format = 1
+instance_count = 1
+mesh = SubResource("BoxMesh_4r6h2")
+buffer = PackedFloat32Array(1.001, 0, 0, 19.0666, 0, -1.001, 0, -0.5, 0, 0, -1.001, -29.1636)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_cmg6b"]
-size = Vector3(20, 0.05, 20)
+[sub_resource type="MultiMesh" id="MultiMesh_1840e"]
+transform_format = 1
+instance_count = 1
+mesh = SubResource("BoxMesh_4r6h2")
+buffer = PackedFloat32Array(1.001, 0, 0, 34.8891, 0, -1.001, 0, -0.5, 0, 0, -1.001, 0.951267)
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pgclj"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iaf5b"]
+albedo_texture = ExtResource("5_wuk6e")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nq2lc"]
-albedo_color = Color(1, 1, 1, 0)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_v2rmg"]
-material = SubResource("StandardMaterial3D_nq2lc")
-
-[sub_resource type="BoxMesh" id="BoxMesh_nq2lc"]
-size = Vector3(1, 0.05, 1)
+[sub_resource type="BoxMesh" id="BoxMesh_2x7xc"]
+size = Vector3(50, 1, 100)
 
 [node name="RaceScene" type="Node3D"]
 
@@ -55,64 +56,41 @@ environment = SubResource("Environment_u2k36")
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 3.94234, 0)
 shadow_enabled = true
 
-[node name="Floor" type="StaticBody3D" parent="."]
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("PlaneMesh_5x088")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-shape = SubResource("BoxShape3D_cmg6b")
-
 [node name="StickSpawner" type="Node3D" parent="."]
+visible = false
 script = ExtResource("1_nq2lc")
 
-[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15146, 3.77111)
-script = ExtResource("3_wuk6e")
+[node name="water" type="MeshInstance3D" parent="."]
+transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, -1, 0)
+mesh = SubResource("PlaneMesh_wuk6e")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
-shape = SubResource("CapsuleShape3D_pgclj")
+[node name="create" type="Node" parent="."]
+script = ExtResource("3_f4p77")
 
-[node name="playerMesh" type="MeshInstance3D" parent="CharacterBody3D"]
-unique_name_in_owner = true
-mesh = SubResource("CapsuleMesh_v2rmg")
-
-[node name="CameraPivot" type="Node3D" parent="CharacterBody3D"]
-unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-
-[node name="SpringArm3D" type="SpringArm3D" parent="CharacterBody3D/CameraPivot"]
+[node name="inventory" parent="." instance=ExtResource("3_nq2lc")]
 unique_name_in_owner = true
 
-[node name="Camera3D" type="Camera3D" parent="CharacterBody3D/CameraPivot/SpringArm3D"]
-unique_name_in_owner = true
-current = true
+[node name="grassright" type="MultiMeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10.2336, 0, 48.7043)
+material_override = SubResource("StandardMaterial3D_377mr")
+multimesh = SubResource("MultiMesh_b3o7c")
 
-[node name="RayCast3D" type="RayCast3D" parent="CharacterBody3D/CameraPivot"]
-unique_name_in_owner = true
-transform = Transform3D(-1, -8.74228e-08, 3.82137e-15, 0, -4.37114e-08, -1, 8.74228e-08, -1, 4.37114e-08, 0, 0, 0)
-target_position = Vector3(0, 3, 0)
+[node name="grassleft" type="MultiMeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -14.0293, 0, 5.06165)
+material_override = SubResource("StandardMaterial3D_377mr")
+multimesh = SubResource("MultiMesh_1840e")
 
-[node name="EToPickUp" type="RichTextLabel" parent="CharacterBody3D"]
-unique_name_in_owner = true
+[node name="grassMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.1865, 0, -122.229)
+material_override = SubResource("StandardMaterial3D_iaf5b")
+mesh = SubResource("BoxMesh_4r6h2")
+
+[node name="showright" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 0)
 visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_colors/default_color = Color(0, 1, 1, 1)
-theme_override_constants/outline_size = 15
-theme_override_font_sizes/normal_font_size = 33
-text = "E to pick up"
-scroll_active = false
-horizontal_alignment = 1
-vertical_alignment = 1
+mesh = SubResource("BoxMesh_2x7xc")
 
-[node name="inventory" parent="CharacterBody3D" instance=ExtResource("3_nq2lc")]
-unique_name_in_owner = true
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
-mesh = SubResource("BoxMesh_nq2lc")
+[node name="showleft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 0)
+visible = false
+mesh = SubResource("BoxMesh_2x7xc")

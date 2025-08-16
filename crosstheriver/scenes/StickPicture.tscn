@@ -1,8 +1,28 @@
-[gd_scene load_steps=3 format=3 uid="uid://dineav5sixs36"]
+[gd_scene load_steps=9 format=3 uid="uid://dineav5sixs36"]
 
 [ext_resource type="Script" uid="uid://1hc7kgol8742" path="res://scripts/rotate.gd" id="1_cf3ns"]
 
 [sub_resource type="Theme" id="Theme_gg8by"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cf3ns"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_kwrn8"]
+material = SubResource("StandardMaterial3D_cf3ns")
+size = Vector2(5, 7)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cf3ns"]
+bg_color = Color(0.294118, 1, 0.294118, 0.294118)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kwrn8"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o24rs"]
+bg_color = Color(0.294118, 1, 0.294118, 0.588235)
+
+[sub_resource type="Theme" id="Theme_2cl30"]
+Button/styles/hover = SubResource("StyleBoxFlat_cf3ns")
+Button/styles/normal = SubResource("StyleBoxEmpty_kwrn8")
+Button/styles/pressed = SubResource("StyleBoxFlat_o24rs")
 
 [node name="FinalPicture" type="SubViewportContainer"]
 size_flags_horizontal = 3
@@ -34,3 +54,15 @@ script = ExtResource("1_cf3ns")
 [node name="Camera3D" type="Camera3D" parent="PictureDrawer/CameraPivot"]
 transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.5, 3)
 far = 10.0
+
+[node name="background" type="MeshInstance3D" parent="PictureDrawer/CameraPivot/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.980488, -3.65923)
+mesh = SubResource("QuadMesh_kwrn8")
+
+[node name="Button" type="Button" parent="PictureDrawer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_2cl30")

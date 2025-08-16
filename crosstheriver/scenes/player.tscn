@@ -1,0 +1,58 @@
+[gd_scene load_steps=6 format=3 uid="uid://i8c5md48j31k"]
+
+[ext_resource type="Script" uid="uid://cdf4u0rr5nbn3" path="res://scripts/PlayerScripts.gd" id="1_g2els"]
+[ext_resource type="PackedScene" uid="uid://eckmu06s5ksr" path="res://scenes/inventory.tscn" id="2_qhqgy"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pgclj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nq2lc"]
+albedo_color = Color(1, 1, 1, 0)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_v2rmg"]
+material = SubResource("StandardMaterial3D_nq2lc")
+
+[node name="player" type="CharacterBody3D"]
+script = ExtResource("1_g2els")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_pgclj")
+
+[node name="playerMesh" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+mesh = SubResource("CapsuleMesh_v2rmg")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+unique_name_in_owner = true
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+unique_name_in_owner = true
+current = true
+
+[node name="RayCast3D" type="RayCast3D" parent="CameraPivot"]
+unique_name_in_owner = true
+transform = Transform3D(-1, -8.74228e-08, 3.82137e-15, 0, -4.37114e-08, -1, 8.74228e-08, -1, 4.37114e-08, 0, 0, 0)
+target_position = Vector3(0, 3, 0)
+
+[node name="EToPickUp" type="RichTextLabel" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(0, 1, 1, 1)
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/normal_font_size = 33
+text = "E to pick up"
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="inventory" parent="." instance=ExtResource("2_qhqgy")]
+unique_name_in_owner = true
