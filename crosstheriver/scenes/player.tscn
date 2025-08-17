@@ -1,7 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://i8c5md48j31k"]
+[gd_scene load_steps=5 format=3 uid="uid://i8c5md48j31k"]
 
 [ext_resource type="Script" uid="uid://cdf4u0rr5nbn3" path="res://scripts/PlayerScripts.gd" id="1_g2els"]
-[ext_resource type="PackedScene" uid="uid://eckmu06s5ksr" path="res://scenes/inventory.tscn" id="2_qhqgy"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pgclj"]
 
@@ -53,6 +52,3 @@ text = "E to pick up"
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="inventory" parent="." instance=ExtResource("2_qhqgy")]
-unique_name_in_owner = true

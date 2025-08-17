@@ -38,7 +38,7 @@ func _ready() -> void:
 
 		for stickName in inventory.keys():
 			var stickData:Dictionary = inventory[stickName]
-			var points:Array[Vector3] = []
+			#var points:Array[Vector3] = []
 			
 			var stickBody:RigidBody3D = RigidBody3D.new()
 			stickBody.set_script(StickScript)
@@ -85,13 +85,13 @@ func _ready() -> void:
 				#	points.append(global_point)
 
 
-			var container:GridContainer = %inventory.get_child(0)
-			var newStickPicture:SubViewportContainer = stickPicture.instantiate()
-			var subViewPort:SubViewport = newStickPicture.get_child(0)
+			#var container:GridContainer = %inventory.get_child(0)
+		#	var newStickPicture:SubViewportContainer = stickPicture.instantiate()
+			#var subViewPort:SubViewport = newStickPicture.get_child(0)
 			
 
-			subViewPort.add_child(stickBody)
-			stickBody.position = Vector3.UP
+		#	subViewPort.add_child(stickBody)
+		#	stickBody.position = Vector3.UP
 			#for point:Vector3 in points:
 			#	var test:MeshInstance3D = MeshInstance3D.new()
 			#	var testMesh:BoxMesh =  BoxMesh.new()
@@ -99,9 +99,9 @@ func _ready() -> void:
 			#	test.mesh =testMesh
 			#	test.position = point
 			#	stickBody.add_child(test)
-			stickBody.set_meta("points", points)
+		#	stickBody.set_meta("points", points)
 
-			container.add_child(newStickPicture)
+		#	container.add_child(newStickPicture)
 
 
 			# You can also reapply stats if needed:

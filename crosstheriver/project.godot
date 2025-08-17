@@ -11,13 +11,17 @@ config_version=5
 [application]
 
 config/name="CrossTheRiver"
-run/main_scene="uid://cn71iwyigu0lm"
+run/main_scene="uid://d0nye8m73fo4e"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+changeScene="*res://scenes/fadeScene.tscn"
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/SimpleGrassTextured-2.0.8/addons/simplegrasstextured/plugin.cfg")
+enabled=PackedStringArray()
 
 [input]
 

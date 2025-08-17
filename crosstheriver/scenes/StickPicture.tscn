@@ -57,6 +57,7 @@ far = 10.0
 
 [node name="background" type="MeshInstance3D" parent="PictureDrawer/CameraPivot/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.980488, -3.65923)
+visible = false
 mesh = SubResource("QuadMesh_kwrn8")
 
 [node name="Button" type="Button" parent="PictureDrawer"]

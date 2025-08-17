@@ -94,3 +94,8 @@ mesh = SubResource("BoxMesh_2x7xc")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 0)
 visible = false
 mesh = SubResource("BoxMesh_2x7xc")
+
+[node name="MainCamera" type="Camera3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3, 1.09986)
+current = true

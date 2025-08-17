@@ -4,6 +4,7 @@ var savePath = "user://inventory.tres"
 var inventory = {}
 @onready var  camera:Camera3D = Camera3D.new()
 @onready var stickBody:RigidBody3D = RigidBody3D.new()
+@onready var main_camera: Camera3D = %MainCamera
 
 const stickPicture = preload("res://scenes/StickPicture.tscn")
 const StickScript = preload("res://scripts/stickScript.gd")
@@ -51,9 +52,11 @@ func _ready() -> void:
 		for stickName in inventory.keys():
 			var stickData:Dictionary = inventory[stickName]
 			var points:Array[Vector3] = []
+			camera = Camera3D.new()
 			
 			#var stickBody:RigidBody3D = RigidBody3D.new()
 			stickBody.set_script(StickScript)
+			#print(stickBody.get_script())
 			var stickMaterial:StandardMaterial3D = StandardMaterial3D.new()
 			stickMaterial.albedo_color = stickData["color"]
 			
@@ -89,15 +92,24 @@ func _ready() -> void:
 			var newStickPicture:SubViewportContainer = stickPicture.instantiate()
 			var subViewPort:SubViewport = newStickPicture.get_child(0)
 			var Buttton:Button = subViewPort.get_child(-1)
-			Buttton.connect("pressed", addStick.bind(stickBody, container),)
+			Buttton.connect("pressed", addStick.bind(stickBody, container, subViewPort.find_child("CameraPivot")))
 
 			subViewPort.add_child(stickBody)
 			stickBody.position = Vector3.ZERO
 			stickBody.freeze = true
+			stickBody.set_meta("control", stickData["control"])
+			stickBody.set_meta("speed", stickData["speed"])
 			self.get_parent().add_child.call_deferred(camera)
-			camera.position = Vector3(-2,5,0)
+			#print(camera.get_parent())
+			
+			#camera.reparent(self.get_parent())
+			#print(camera.get_parent())
+			#camera.position = Vector3(-2,5,0)
+			#camera.get_child(-1).queue_free()
 
 			stickBody.set_meta("points", points)
+			stickBody = RigidBody3D.new()
+			points = []
 
 			container.add_child(newStickPicture)
 
@@ -107,8 +119,8 @@ func _input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	if  stickBody.position.x -  camera.position.x> 10:
-		get_tree().create_tween().tween_property(camera, "position", stickBody.position + Vector3(-2,5,0), 3.0 )  #camera.position = stickBody.position + Vector3(-2,3,0)#Vector3.UP#
-	camera.look_at(stickBody.position)
+		get_tree().create_tween().tween_property(main_camera, "position", stickBody.position + Vector3(-2,5,0), 3.0 )  #camera.position = stickBody.position + Vector3(-2,3,0)#Vector3.UP#
+	main_camera.look_at(stickBody.position)
 
 #extends Node3D
 
@@ -315,29 +327,15 @@ func generate_rock_variations(count: int) -> Array[Dictionary]:
 	
 	return variations
 
-# Example usage function
-func demo_usage():
-	# Generate a single rock
-	var rock_data = generate_rock()
-	print("Generated rock with ", rock_data.vertices.size(), " vertices")
-	
-	# Create ConvexPolygonShape3D
-	#var collision_shape = create_convex_shape()
-	
-	# Create ArrayMesh
-	#var mesh = create_array_mesh()
-	
-	# Create complete rigidbody
-	var rock_body = create_rock_staticbody(Vector3(0, 5, 0))
-	get_parent().add_child(rock_body)
-	
-	# Generate variations
-	var variations = generate_rock_variations(5)
-	for i in range(variations.size()):
-		var rock = create_rock_staticbody(Vector3(i * 4, 5, 0))
-		get_parent().add_child(rock)
-
-
-func addStick(stick:RigidBody3D, container:GridContainer) -> void:
+func addStick(stick:RigidBody3D, container:GridContainer, backGround:Node3D) -> void:
+	#camera = Camera3D.new()
+	stickBody = stick
+	#self.get_parent().add_child(camera)
+	#camera.position = Vector3(0,2,-5)
 	stick.freeze = false
 	container.visible = false
+	print(backGround)
+	backGround.queue_free()
+	backGround.visible = false
+	backGround.hide()
+	print(backGround)

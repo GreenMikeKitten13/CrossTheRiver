@@ -1,15 +1,17 @@
 extends RigidBody3D
 
 # Water simulation parameters
-@export var water_level: float = -0.9
+@export var water_level: float = -1.0
 @export var water_density: float = 1000.0
-@export var buoyancy_strength: float = 0.06 #1
+@export var buoyancy_strength: float = 0.08#1.0
+#var river_strength:float = 1000000000000000000
 @export var linear_drag: float = 2.0
 @export var angular_drag: float = 1.0
 @export var river_velocity: Vector3 = Vector3(0.1, 0.0, 0.0)
-var river_forces:float = 0.01
 @export var sample_points_per_cylinder: int = 10
 @export var surface_sample_points_per_cylinder: int = 5
+var total_drag_force:Vector3 =Vector3.ZERO
+@onready var control = self.get_meta("control")
 
 # Internal variables
 var submerged_volume: float = 0.0
@@ -19,6 +21,18 @@ var cylinder_data: Array[Dictionary] = []
 
 func _ready():
 	calculate_cylinder_data()
+
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("Left"):
+		river_velocity = Vector3(0.1,0,-control)
+	if event.is_action_pressed("Right"):
+		river_velocity = Vector3(0.1,0,control)
+	if !event.is_action_pressed("Left") and !event.is_action_pressed("Right"):
+		river_velocity = Vector3(0.1,0,0)
+	#if !(river_velocity == Vector3(0.1,0,control) or river_velocity == Vector3(0.1,0, -control)):
+	#	river_velocity = Vector3(0.1,0,0)
+	print(river_velocity)
 
 func calculate_cylinder_data():
 	cylinder_data.clear()
@@ -57,7 +71,7 @@ func apply_water_forces(state):
 	submerged_volume = 0.0
 	buoyancy_center = Vector3.ZERO
 	var total_submerged_points = 0
-	var _total_sample_points = 0
+	#var total_sample_points = 0
 	
 	# Get world transform
 	var world_transform = state.transform
@@ -68,13 +82,21 @@ func apply_water_forces(state):
 		var top_radius = cylinder_info["top_radius"]
 		var bottom_radius = cylinder_info["bottom_radius"]
 		var height = cylinder_info["height"]
-		var local_transform = Transform3D(
-			Basis.from_euler(cylinder_info["rotation"]),
-			cylinder_info["position"]
-		)
+		# Safely create the local transform with rotation validation
+		var sotation = cylinder_info["rotation"] as Vector3
+		var local_transform = Transform3D()
+		
+		# Validate rotation vector and create basis safely
+		if sotation.length_squared() > 0.0001:  # Only apply rotation if significant
+			var validated_rotation = validate_vector(sotation)
+			if validated_rotation != Vector3.ZERO:
+				local_transform.basis = Basis.from_euler(validated_rotation)
+		
+		local_transform.origin = cylinder_info["position"]
 		
 		var cylinder_submerged_points = 0
-		var _cylinder_buoyancy_center = Vector3.ZERO
+		@warning_ignore("unused_variable")
+		var cylinder_buoyancy_center = Vector3.ZERO
 		
 		# Sample points inside this cylinder
 		for i in range(sample_points_per_cylinder):
@@ -82,11 +104,11 @@ func apply_water_forces(state):
 			var rigidbody_local_point = local_transform * cylinder_local_point
 			var world_point = world_transform * rigidbody_local_point
 			
-			_total_sample_points += 1
+			#total_sample_points += 1
 			if world_point.y < water_level:
 				cylinder_submerged_points += 1
 				total_submerged_points += 1
-				_cylinder_buoyancy_center += rigidbody_local_point
+				cylinder_buoyancy_center += rigidbody_local_point
 				buoyancy_center += rigidbody_local_point
 		
 		# Calculate this cylinder's contribution to submerged volume
@@ -119,20 +141,27 @@ func apply_buoyancy_force(state):
 		state.apply_central_force(buoyancy_force)
 
 func apply_water_drag(state):
-	var total_drag_force = Vector3.ZERO
+	total_drag_force = Vector3.ZERO
 	var total_drag_torque = Vector3.ZERO
 	var total_surface_points_in_water = 0
-	var _total_surface_points = 0
+	#var total_surface_points = 0
 	
 	# Process drag for each cylinder
 	for cylinder_info in cylinder_data:
 		var top_radius = cylinder_info["top_radius"]
 		var bottom_radius = cylinder_info["bottom_radius"]
 		var height = cylinder_info["height"]
-		var local_transform = Transform3D(
-			Basis.from_euler(cylinder_info["rotation"]),
-			cylinder_info["position"]
-		)
+		# Safely create the local transform with rotation validation
+		var sotation = cylinder_info["rotation"] as Vector3
+		var local_transform = Transform3D()
+		
+		# Validate rotation vector and create basis safely
+		if sotation.length_squared() > 0.0001:  # Only apply rotation if significant
+			var validated_rotation = validate_vector(sotation)
+			if validated_rotation != Vector3.ZERO:
+				local_transform.basis = Basis.from_euler(validated_rotation)
+		
+		local_transform.origin = cylinder_info["position"]
 		
 		# Sample surface points on this cylinder
 		for i in range(surface_sample_points_per_cylinder):
@@ -140,7 +169,7 @@ func apply_water_drag(state):
 			var rigidbody_local_point = local_transform * cylinder_local_point
 			var world_point = state.transform * rigidbody_local_point
 			
-			_total_surface_points += 1
+			#total_surface_points += 1
 			
 			if world_point.y < water_level:
 				total_surface_points_in_water += 1
@@ -188,7 +217,7 @@ func apply_water_drag(state):
 func apply_river_force(state):
 	# Apply river current force proportional to submerged volume
 	var submersion_ratio = submerged_volume / total_volume if total_volume > 0 else 0.0
-	var river_force = river_velocity * water_density * submersion_ratio * 0.5 * river_forces
+	var river_force = river_velocity * submersion_ratio #/ river_strength #0.5 instead of river_streng* water_density *th
 	river_force = validate_vector(river_force)
 	river_force = river_force.limit_length(mass * 10.0)  # Prevent excessive river forces
 	
@@ -214,30 +243,19 @@ func validate_vector(vec: Vector3) -> Vector3:
 	if is_nan(vec.x) or is_nan(vec.y) or is_nan(vec.z) or is_inf(vec.x) or is_inf(vec.y) or is_inf(vec.z):
 		return Vector3.ZERO
 	
+	# Check for extremely small values that might cause numerical issues
+	var cleaned_vec = Vector3(
+		0.0 if abs(vec.x) < 1e-6 else vec.x,
+		0.0 if abs(vec.y) < 1e-6 else vec.y,
+		0.0 if abs(vec.z) < 1e-6 else vec.z
+	)
+	
 	# Return the validated vector
-	return vec
+	return cleaned_vec
 
 # Call this if cylinders are added/removed dynamically
 func refresh_cylinder_data():
 	calculate_cylinder_data()
-
-# Optional: Debug visualization (remove in production)
-func _draw_debug_info():
-	if Engine.is_editor_hint():
-		return
-	
-	# Draw water level plane
-	#DebugDraw3D.draw_plane(Vector3(0, water_level, 0), Vector3.UP, Color.BLUE, 10.0)
-	
-	# Draw buoyancy center
-	#if submerged_volume > 0:
-	#	var world_buoyancy_center = global_transform * buoyancy_center
-	#	DebugDraw3D.draw_sphere(world_buoyancy_center, 0.1, Color.GREEN)
-	
-	# Draw cylinder positions
-	#for cylinder_info in cylinder_data:
-	#	var world_cylinder_pos = global_transform * cylinder_info["position"]
-	#	DebugDraw3D.draw_sphere(world_cylinder_pos, 0.05, Color.RED)
 
 # Optional: Get current water interaction info
 func get_water_info() -> Dictionary:
