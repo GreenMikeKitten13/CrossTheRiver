@@ -18,10 +18,11 @@ config/icon="res://icon.svg"
 [autoload]
 
 changeScene="*res://scenes/fadeScene.tscn"
+Nakama="*res://addons/nakama/nakama.gd"
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/nakama/plugin.cfg")
 
 [input]
 

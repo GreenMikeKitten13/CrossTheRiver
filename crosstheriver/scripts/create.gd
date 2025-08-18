@@ -10,30 +10,42 @@ const stickPicture = preload("res://scenes/StickPicture.tscn")
 const StickScript = preload("res://scripts/stickScript.gd")
 
 func _ready() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	for edgeID:int in 2:
-		var edge #rock_width, rock_height, noise_strength, roughness
-		segments_circumference = 8
-		segments_length = 10
-		rock_length = 50
-		rock_width = 2
-		rock_height = 1.25
-		noise_strength = 0.7 #0.6
-		roughness = 0.9 #0.8
-		taper_strength = 0.0
-		if edgeID == 1:
-			edge = create_rock_staticbody(Vector3(5,-1,4))
-		else:
-			edge = create_rock_staticbody(Vector3(5,-1,-4))
+	#var client = Nakama.create_client("defaultkey", "127.0.0.1", 7350, "http")
+	#print("Nakama client created!")
+	#Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	var lastLeftPosVec = Vector3(-50,-1,-27.5)
+	var lastRightPosVec = Vector3(-50,-1,27.5)
+	for LeftEdgeID:int in 2:
+		var edge:StaticBody3D = $"../grass".duplicate()#rock_width, rock_height, noise_strength, roughness
+		#edge.rotation = Vector3(0, randf_range(0, 40), 0)
+		edge.position = lastLeftPosVec + Vector3(50,0,0) #* #LeftEdgeID
+		lastLeftPosVec = edge.position
 		self.get_parent().add_child.call_deferred(edge)
-		
+	
+	for rightEdgeID:int in 2:
+		var edge:StaticBody3D = $"../grass".duplicate()#rock_width, rock_height, noise_strength, roughness
+		#edge.rotation = Vector3(0, randf_range(0, 40), 0)
+		edge.position = lastRightPosVec + Vector3(50,0,0) #* #LeftEdgeID
+		lastRightPosVec = edge.position
+		self.get_parent().add_child.call_deferred(edge)
+	
+	var lastWaterPos:float
+	for waterID:int in 4:
+		var water:MeshInstance3D = $"../water".duplicate()
+		water.position = Vector3(waterID * 25, -6, 0)
+		if randf() <= 0.5 and not waterID == 0:
+			water.position = Vector3(0, lastWaterPos -5,0)
+			
+		lastWaterPos = water.position.y
+		self.get_parent().add_child.call_deferred(water)
+	
 	segments_circumference = 8
 	
 	for row:int in range(0, 50, randi_range(2, 6)):#(0, randi_range(6, 24), 3):
 		for rockID:int in randi_range(0, 5):
 			rock_length = randf_range(0.8,1.2) #1
 			rock_width = randf_range(1.3,1.7)#1.5
-			rock_height = 1
+			rock_height = randf_range(0.8, 1.2)
 			taper_strength = 1.0
 			segments_length = 14
 			segments_circumference = 8
@@ -42,7 +54,7 @@ func _ready() -> void:
 			
 			var stone:StaticBody3D = create_rock_staticbody(Vector3(row,-1,randf_range(-3, 3)))
 			self.get_parent().add_child.call_deferred(stone)
-			stone.rotate(Vector3.UP, 90) 
+			stone.rotate(Vector3.UP, 90)
 	
 	var inventoryData := ResourceLoader.load(savePath) as saveData
 	if inventoryData:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://cn71iwyigu0lm"]
+[gd_scene load_steps=13 format=3 uid="uid://cn71iwyigu0lm"]
 
 [ext_resource type="Script" uid="uid://vc3hybhtcrsy" path="res://scripts/stickSpawner.gd" id="1_nq2lc"]
 [ext_resource type="Script" uid="uid://b2cwxofo5r8vu" path="res://scripts/create.gd" id="3_f4p77"]
@@ -19,33 +19,18 @@ sky = SubResource("Sky_v2rmg")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_wuk6e"]
+[sub_resource type="BoxMesh" id="BoxMesh_wuk6e"]
 material = ExtResource("4_f4p77")
-size = Vector2(5, 5)
+size = Vector3(25, 10, 15)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_377mr"]
-albedo_texture = ExtResource("5_wuk6e")
-
-[sub_resource type="BoxMesh" id="BoxMesh_4r6h2"]
-size = Vector3(50, 1, 100)
-
-[sub_resource type="MultiMesh" id="MultiMesh_b3o7c"]
-transform_format = 1
-instance_count = 1
-mesh = SubResource("BoxMesh_4r6h2")
-buffer = PackedFloat32Array(1.001, 0, 0, 19.0666, 0, -1.001, 0, -0.5, 0, 0, -1.001, -29.1636)
-
-[sub_resource type="MultiMesh" id="MultiMesh_1840e"]
-transform_format = 1
-instance_count = 1
-mesh = SubResource("BoxMesh_4r6h2")
-buffer = PackedFloat32Array(1.001, 0, 0, 34.8891, 0, -1.001, 0, -0.5, 0, 0, -1.001, 0.951267)
+[sub_resource type="BoxShape3D" id="BoxShape3D_wuk6e"]
+size = Vector3(50, 1, 50)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iaf5b"]
 albedo_texture = ExtResource("5_wuk6e")
 
-[sub_resource type="BoxMesh" id="BoxMesh_2x7xc"]
-size = Vector3(50, 1, 100)
+[sub_resource type="BoxMesh" id="BoxMesh_4r6h2"]
+size = Vector3(50, 1, 50)
 
 [node name="RaceScene" type="Node3D"]
 
@@ -61,8 +46,8 @@ visible = false
 script = ExtResource("1_nq2lc")
 
 [node name="water" type="MeshInstance3D" parent="."]
-transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, -1, 0)
-mesh = SubResource("PlaneMesh_wuk6e")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -3116.84)
+mesh = SubResource("BoxMesh_wuk6e")
 
 [node name="create" type="Node" parent="."]
 script = ExtResource("3_f4p77")
@@ -70,32 +55,18 @@ script = ExtResource("3_f4p77")
 [node name="inventory" parent="." instance=ExtResource("3_nq2lc")]
 unique_name_in_owner = true
 
-[node name="grassright" type="MultiMeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10.2336, 0, 48.7043)
-material_override = SubResource("StandardMaterial3D_377mr")
-multimesh = SubResource("MultiMesh_b3o7c")
-
-[node name="grassleft" type="MultiMeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -14.0293, 0, 5.06165)
-material_override = SubResource("StandardMaterial3D_377mr")
-multimesh = SubResource("MultiMesh_1840e")
-
-[node name="grassMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.1865, 0, -122.229)
-material_override = SubResource("StandardMaterial3D_iaf5b")
-mesh = SubResource("BoxMesh_4r6h2")
-
-[node name="showright" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 0)
-visible = false
-mesh = SubResource("BoxMesh_2x7xc")
-
-[node name="showleft" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 0)
-visible = false
-mesh = SubResource("BoxMesh_2x7xc")
-
 [node name="MainCamera" type="Camera3D" parent="."]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3, 1.09986)
 current = true
+
+[node name="grass" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 100)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="grass"]
+shape = SubResource("BoxShape3D_wuk6e")
+
+[node name="grassMesh" type="MeshInstance3D" parent="grass"]
+material_override = SubResource("StandardMaterial3D_iaf5b")
+mesh = SubResource("BoxMesh_4r6h2")
+skeleton = NodePath("../..")
