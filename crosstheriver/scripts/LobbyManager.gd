@@ -13,10 +13,22 @@ var nakama_socket: NakamaSocket
 var current_lobby_id: String = ""
 var is_lobby_host: bool = false
 
+# Server configuration - CHANGE THESE VALUES
+var server_host: String = "192.168.178.56"  # Change to your server's IP address   localhost is 127.0.0.1
+var server_port: int = 7350
+var server_key: String = "defaultkey"
+
 func _ready():
-	# Connect to Nakama
-	nakama_client = Nakama.create_client("defaultkey", "127.0.0.1", 7350, "http")
+	# Connect to Nakama using the configured server settings
+	nakama_client = Nakama.create_client(server_key, server_host, server_port, "http")
 	connect_to_server()
+
+func configure_server(host: String, port: int = 7350, key: String = "defaultkey"):
+	"""Configure server connection before connecting"""
+	server_host = host
+	server_port = port
+	server_key = key
+	print("Server configured: ", server_host, ":", server_port)
 
 func connect_to_server():
 	print("Connecting to Nakama...")
@@ -105,7 +117,7 @@ func create_public_lobby(lobby_name: String, max_players: int = 10):
 	
 	# Store in user storage for easy retrieval
 	var storage_objects = []
-	var storage_write = NakamaWriteStorageObject.new("public_lobbies", current_lobby_id, 1, 2, JSON.stringify(lobby_data), "")
+	var storage_write = NakamaWriteStorageObject.new("public_lobbies", current_lobby_id, 2, 0, JSON.stringify(lobby_data), "")
 	storage_objects.append(storage_write)
 	
 	var storage_result = await nakama_client.write_storage_objects_async(nakama_session, storage_objects)
@@ -147,20 +159,27 @@ func list_public_lobbies():
 	var result = await nakama_client.list_storage_objects_async(nakama_session, "public_lobbies", "", 100)
 	
 	if result.is_exception():
+		print("Error fetching lobbies: ", result.get_exception())
 		lobby_error.emit("Failed to get lobby list: " + str(result.get_exception()))
 		return []
 	
+	print("Raw storage result - found ", result.objects.size(), " storage objects")
+	
 	var public_lobbies = []
 	for storage_object in result.objects:
+		print("Processing storage object: ", storage_object.key)
 		var lobby_data_result = JSON.parse_string(storage_object.value)
 		if lobby_data_result != null:
 			var lobby_data = lobby_data_result
+			print("Lobby data: ", lobby_data)
+			
 			# Check if lobby is still valid (not too old)
 			var created_at = lobby_data.get("created_at", 0)
 			var current_time = Time.get_unix_time_from_system()
 			
 			# Skip lobbies older than 1 hour
 			if current_time - created_at > 3600:
+				print("Skipping old lobby: ", lobby_data.get("lobby_name", "Unknown"))
 				continue
 				
 			public_lobbies.append({
@@ -170,8 +189,10 @@ func list_public_lobbies():
 				"max_players": lobby_data.get("max_players", 10),
 				"host": lobby_data.get("host_name", "Unknown")
 			})
+		else:
+			print("Failed to parse lobby data for key: ", storage_object.key)
 	
-	print("Found ", public_lobbies.size(), " public lobbies")
+	print("Found ", public_lobbies.size(), " valid public lobbies")
 	return public_lobbies
 
 ## PRIVATE LOBBY FUNCTIONS
@@ -210,7 +231,7 @@ func create_private_lobby(lobby_name: String, password: String, max_players: int
 	
 	# Store in private collection
 	var storage_objects = []
-	var storage_write = NakamaWriteStorageObject.new("private_lobbies", current_lobby_id, 1, 1, JSON.stringify(lobby_data), "")
+	var storage_write = NakamaWriteStorageObject.new("private_lobbies", current_lobby_id, 1, 0, JSON.stringify(lobby_data), "")
 	storage_objects.append(storage_write)
 	
 	var storage_result = await nakama_client.write_storage_objects_async(nakama_session, storage_objects)

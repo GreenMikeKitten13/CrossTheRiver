@@ -48,6 +48,8 @@ var join_private_dialog: AcceptDialog
 var current_lobby_dialog: AcceptDialog
 
 func _ready():
+	# In your main menu script, before starting the lobby system:
+	#$LobbyManager.configure_server("YOUR_IP_ADDRESS_HERE")
 	# Connect lobby manager signals
 	lobby_manager.lobby_created.connect(_on_lobby_created)
 	lobby_manager.lobby_joined.connect(_on_lobby_joined)
@@ -313,35 +315,45 @@ func _on_create_public_confirmed():
 	lobby_manager.create_public_lobby(lobby_name, max_players)
 
 # Refresh public lobbies
+# Refresh public lobbies - FIXED VERSION
 func refresh_public_lobbies():
-	# Clear existing lobby buttons (keep the create/refresh buttons)
+	# Clear ALL existing children in the container (not just buttons)
 	for child in lobby_list_container.get_children():
-		if child is Button:
-			child.queue_free()
+		child.queue_free()
+	
+	# Wait a frame to ensure children are actually removed
+	await get_tree().process_frame
+	
+	print("=== Starting lobby refresh ===")
 	
 	# Get lobbies from manager
 	var lobbies = await lobby_manager.list_public_lobbies()
 	
-	# Add lobby buttons
-	for lobby in lobbies:
-		var lobby_button = Button.new()
-		lobby_button.text = "%s (%d/%d) - %s" % [
-			lobby["name"],
-			lobby["players"],
-			lobby["max_players"],
-			lobby["host"]
-		]
-		
-		# Connect button to join function
-		lobby_button.pressed.connect(_on_public_lobby_selected.bind(lobby["id"]))
-		lobby_list_container.add_child(lobby_button)
+	print("=== Received ", lobbies.size(), " lobbies from manager ===")
 	
-	if lobbies.is_empty():
+	# Add lobby buttons
+	if lobbies.size() > 0:
+		for lobby in lobbies:
+			print("Adding lobby button for: ", lobby["name"])
+			var lobby_button = Button.new()
+			lobby_button.text = "%s (%d/%d) - %s" % [
+				lobby["name"],
+				lobby["players"],
+				lobby["max_players"],
+				lobby["host"]
+			]
+			
+			# Connect button to join function
+			lobby_button.pressed.connect(_on_public_lobby_selected.bind(lobby["id"]))
+			lobby_list_container.add_child(lobby_button)
+	else:
+		print("No lobbies found, adding 'no lobbies' label")
 		var no_lobbies = Label.new()
 		no_lobbies.text = "No public lobbies available"
 		no_lobbies.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lobby_list_container.add_child(no_lobbies)
-
+	
+	print("=== Lobby refresh complete ===")
 func _on_public_lobby_selected(lobby_id: String):
 	lobby_manager.join_public_lobby(lobby_id)
 
